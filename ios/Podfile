@@ -13,6 +13,8 @@ target 'space' do
   pod 'react-native-cameraroll', :path => '../node_modules/@react-native-community/cameraroll'
 
 
+  pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
+
   target 'spaceTests' do
     inherit! :complete
     # Pods for testing
