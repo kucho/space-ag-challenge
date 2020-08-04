@@ -2,7 +2,25 @@ import React, {PureComponent} from 'react';
 import {RNCamera} from 'react-native-camera';
 
 import Icon from 'react-native-vector-icons/dist/FontAwesome';
-import {TouchableOpacity, Alert, StyleSheet} from 'react-native';
+import {
+  TouchableOpacity,
+  Alert,
+  StyleSheet,
+  PermissionsAndroid,
+} from 'react-native';
+import CameraRoll from '@react-native-community/cameraroll';
+
+async function storagePermission() {
+  const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
+
+  const hasPermission = await PermissionsAndroid.check(permission);
+  if (hasPermission) {
+    return true;
+  }
+
+  const status = await PermissionsAndroid.request(permission);
+  return status === 'granted';
+}
 
 export default class Camera extends PureComponent {
   constructor(props) {
@@ -23,8 +41,13 @@ export default class Camera extends PureComponent {
       this.setState({takingPic: true});
 
       try {
+        if (!(await storagePermission())) {
+          return;
+        }
         const data = await this.camera.takePictureAsync(options);
-        Alert.alert('Success', JSON.stringify(data));
+        // const roll = await CameraRoll.save(data.uri);
+        this.props.sendToStore(data);
+        Alert.alert('Success', 'Saved!');
       } catch (err) {
         Alert.alert('Error', 'Failed to take picture: ' + (err.message || err));
         return;

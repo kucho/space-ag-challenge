@@ -1,9 +1,66 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Camera from '../Camera';
-import {SafeAreaView, TouchableHighlight, Image} from 'react-native';
+import {
+  Alert,
+  Image,
+  PermissionsAndroid,
+  SafeAreaView,
+  TouchableHighlight,
+} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import {addSample} from '../../store/samples';
+import Geolocation from 'react-native-geolocation-service';
 
-const SampleAdd = () => {
+async function locationPermission() {
+  const permission = PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION;
+
+  const hasPermission = await PermissionsAndroid.check(permission);
+  if (hasPermission) {
+    return true;
+  }
+
+  const status = await PermissionsAndroid.request(permission);
+  return status === 'granted';
+}
+
+const SampleAdd = ({navigation}) => {
+  const {samples} = useSelector((state) => state.samples);
+  const dispatch = useDispatch();
   const [img, setImg] = useState(null);
+
+  useEffect(() => {
+    async function checkLocationPermission() {
+      if (!(await locationPermission())) {
+        navigation.popToTop();
+      }
+    }
+    checkLocationPermission().then();
+  }, [navigation]);
+
+  const handleSendToStore = (data) => {
+    const id = samples.length + 1;
+
+    Geolocation.getCurrentPosition(
+      (position) => {
+        dispatch(
+          addSample({
+            id,
+            picture: data.uri,
+            position,
+            date: new Date().toISOString(),
+          }),
+        );
+        navigation.push('Item', {id});
+      },
+      (error) => {
+        Alert.alert(
+          'Error' + error.code,
+          'Failed to get position: ' + (error.message || error),
+        );
+      },
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+    );
+  };
 
   function onPicture({uri}) {
     setImg(uri);
@@ -25,7 +82,7 @@ const SampleAdd = () => {
             <Image source={{uri: img}} style={{flex: 1}} />
           </TouchableHighlight>
         ) : (
-          <Camera onPicture={onPicture} />
+          <Camera onPicture={onPicture} sendToStore={handleSendToStore} />
         )}
       </SafeAreaView>
     </>

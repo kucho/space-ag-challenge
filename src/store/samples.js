@@ -8,7 +8,9 @@ const samplesReducer = createSlice({
   name: 'samples',
   initialState,
   reducers: {
-    addSample(state, action) {},
+    addSample(state, action) {
+      state.samples.push(action.payload);
+    },
     removeSample(state, action) {},
   },
 });
