@@ -1,9 +1,8 @@
 import React from 'react';
 import {Button, List, Text} from 'react-native-paper';
-import {formatDistance} from 'date-fns';
-import {es} from 'date-fns/locale';
 import {StyleSheet, View} from 'react-native';
 import {useSelector} from 'react-redux';
+import {formatDate} from '../../utils/common';
 
 const styles = StyleSheet.create({
   container: {
@@ -57,11 +56,7 @@ const SampleList = ({navigation}) => {
             <List.Item
               title={'Muestra ' + (index + 1)}
               style={styles.item}
-              description={formatDistance(Date.parse(sample.date), new Date(), {
-                includeSeconds: true,
-                addSuffix: true,
-                locale: es,
-              })}
+              description={formatDate(sample.date)}
               onPress={() => {
                 navigation.navigate('Item', {id: sample.id});
               }}
