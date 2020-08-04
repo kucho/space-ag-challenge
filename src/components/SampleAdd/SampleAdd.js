@@ -46,7 +46,7 @@ const SampleAdd = ({navigation}) => {
           addSample({
             id,
             picture: data.uri,
-            position,
+            position: position.coords,
             date: new Date().toISOString(),
           }),
         );

@@ -1,12 +1,12 @@
-import React, {useEffect} from 'react';
-import {Image, Text, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Image, Text, View, ScrollView} from 'react-native';
 import {List} from 'react-native-paper';
 import {useSelector} from 'react-redux';
 import {formatDate} from '../../utils/common';
+import MapView from 'react-native-maps';
 
 const styles = {
   container: {
-    flex: 1,
     backgroundColor: 'gray',
     alignItems: 'center',
   },
@@ -44,7 +44,16 @@ const styles = {
   cardTitle: {
     color: 'dimgray',
   },
-  mapContainer: {},
+  mapContainer: {
+    height: 300,
+    width: '100%',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  map: {
+    width: '100%',
+    height: '100%',
+  },
 };
 
 const SampleItem = ({route, navigation}) => {
@@ -64,17 +73,30 @@ const SampleItem = ({route, navigation}) => {
       ),
     });
   }, [navigation, sample]);
-
+  console.log({lat: sample.position.latitude, long: sample.position.longitude});
   return (
-    <View style={styles.container}>
-      <View style={styles.mapContainer} />
+    <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.mapContainer}>
+        <MapView
+          style={styles.map}
+          mapType="hybrid"
+          minZoomLevel={19}
+          showsUserLocation
+          region={{
+            latitude: sample.position.latitude,
+            longitude: sample.position.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+        />
+      </View>
       <View style={styles.card}>
         <View style={styles.header}>
           <Text style={styles.cardTitle}>Foto</Text>
         </View>
         <Image style={styles.picture} source={{uri: sample.picture}} />
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
